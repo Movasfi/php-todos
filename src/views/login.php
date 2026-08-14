@@ -34,6 +34,7 @@
 </head>
 
 <body>
+<<<<<<< Updated upstream
     <main>
         <h1>FoucsFlow</h1>
         <p>clarity in every task.</p>
@@ -51,6 +52,8 @@
             </span>
         </form>
     </main>
+=======
+>>>>>>> Stashed changes
 </body>
 
 </html>

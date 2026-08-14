@@ -492,6 +492,21 @@
     }
   }
 }
+<<<<<<< Updated upstream
+=======
+.bg-navbar {
+  background: hsl(231, 100%, 99%);
+}
+.bg-main {
+  background: hsl(0, 0%, 100%);
+}
+.bg-primary {
+  background: hsl(218, 100%, 39%);
+}
+.text-primary {
+  color: hsl(218, 100%, 39%);
+}
+>>>>>>> Stashed changes
 @property --tw-translate-x {
   syntax: "*";
   inherits: false;
