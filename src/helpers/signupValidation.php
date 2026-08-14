@@ -17,16 +17,27 @@ function validateRegistration(string $username, string $email, string $password,
         $errors['email'] = "Invalid email format.";
     }
 
-    if (empty($password)) {
-        $errors['password'] = "Password is required.";
+    if (empty($password) || is_numeric($password)) {
+        $errors['password'] = "please enter a valid password";
     } elseif (strlen($password) < 8) {
         $errors['password'] = "Password must be at least 8 characters long.";
     }
 
-    if (empty($confirmPassword)) {
-        $errors['confirmPassword'] = "Please confirm your password.";
+    if (empty($confirmPassword) || is_numeric($password)) {
+        $errors['confirmPassword'] = "please enter a valid password";
     } elseif ($password !== $confirmPassword) {
         $errors['confirm-password'] = "Passwords do not match.";
+    }
+
+    return $errors;
+}
+
+function existedEmail(object | bool | null $emailObj): array
+{
+    $errors = [];
+
+    if ($emailObj !== false && ! empty($emailObj)) {
+        $errors["email"] = "this email is used";
     }
 
     return $errors;

@@ -22,7 +22,7 @@
     ],
     [
         'label'       => 'Password',
-        'type'        => 'password',
+        'type'        => '',
         'id'          => 'password',
         'name'        => 'password',
         'placeholder' => '••••••••',
@@ -31,9 +31,9 @@
     ],
     [
         'label'       => 'Confirm Password',
-        'type'        => 'password',
-        'id'          => 'confirm-password',
-        'name'        => 'confirm-password',
+        'type'        => '',
+        'id'          => 'confirmPassword',
+        'name'        => 'confirmPassword',
         'placeholder' => '••••••••',
         'required'    => true,
         'minlength'   => 8,
@@ -51,27 +51,47 @@
     if (isset($_POST['email'])) {
         $email = $_POST["email"];
     }
-    if (isset($_POST['confirm-password'])) {
-        $confirmPassword = $_POST["confirm-password"];
+    if (isset($_POST['confirmPassword'])) {
+        $confirmPassword = $_POST["confirmPassword"];
     }
     $errors = validateRegistration($username, $email, $password, $confirmPassword);
-    }
-    if (empty(($errors))) {
-    try {
-        $query          = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
-        $insertData     = $conn->prepare($query);
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $insertData->bindParam(':username', $username, PDO::PARAM_STR);
-        $insertData->bindParam(':email', $email, PDO::PARAM_STR);
-        $insertData->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
 
-        $insertData->execute();
-        header("Location: index.php");
-        exit();
-    } catch (PDOException $e) {
-        $DbError = $e->getMessage();
+    if (empty(($errors))) {
+        try {
+            $query       = "SELECT email FROM users where email = :email";
+            $searchEmail = $conn->prepare($query);
+            $searchEmail->bindParam(':email', $email, PDO::PARAM_STR);
+            $searchEmail->execute();
+
+            $emailObj = $searchEmail->fetch(PDO::FETCH_OBJ);
+        } catch (Exception $e) {
+            $DbError = "Something went wrong, try later again";
+        }
+
+        $existedEmail = existedEmail($emailObj);
+
+        if (empty($existedEmail)) {
+            try {
+                $query          = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
+                $insertData     = $conn->prepare($query);
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                $insertData->bindParam(':username', $username, PDO::PARAM_STR);
+                $insertData->bindParam(':email', $email, PDO::PARAM_STR);
+
+                $insertData->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
+
+                $insertData->execute();
+                header("Location: login.php");
+                exit();
+            } catch (PDOException $e) {
+                $DbError = "Something went wrong, try later again";
+            }
+        } else {
+            $errors = $existedEmail;
+        }
     }
     }
+
 ?>
 
 <!DOCTYPE html>
@@ -92,12 +112,12 @@
             <p class="bg-gray text-center  my-4">Create your accountto start organizing</p>
         </section>
         <section class="border bg-main p-6 rounded-md shadow-md max-w-md w-80  sm:w-140 mx-auto">
-            <form  method="POST" class="space-y-4">
+            <form method="POST" class="space-y-4">
                 <?php foreach ($formFields as $field):
                         $fieldName  = $field['name'];
                         $fieldValue = ($field['type'] !== 'password') ? (${$fieldName} ?? '') : '';
                 ?>
-                    <div class="flex flex-col space-y-1.5">
+                    <div class="flex flex-col space-y-1.5 relative">
                         <label for="<?php echo $field['id'] ?>" class="text-sm font-medium">
                             <?php echo $field['label'] ?>
                         </label>
@@ -111,8 +131,20 @@
                             <?php echo $field['required'] ? 'required' : '' ?>
                             <?php echo empty($field['minlength']) ? $field['minlength'] : 3 ?>>
 
+                        <?php if ($fieldName === "password"): ?>
+                            <span id="eyeContainerPassword" class="cursor-pointer absolute right-2.5 top-10">
+                                <img class="w-5" id="eyePassword" src="../assets/Eye.svg" alt="">
+                            </span>
+                        <?php endif; ?>
+
+                        <?php if ($fieldName === "confirmPassword"): ?>
+                            <span id="eyeContainerConfirmPassword" class="cursor-pointer absolute right-2.5 top-10">
+                                <img class="w-5"  id="eyeConfirmPassword" src="../assets/Eye.svg" alt="">
+                            </span>
+                        <?php endif; ?>
+
                         <?php if (isset($errors[$fieldName])): ?>
-                            <span class="text-red-500 text-xs font-medium">
+                            <span class="errorMsg text-red-500 text-xs font-medium">
                                 <?php echo htmlspecialchars($errors[$fieldName]) ?>
                             </span>
                         <?php endif; ?>
@@ -132,6 +164,8 @@
         </section>
 
     </main>
+
+    <script src="../js/signup.js"></script>
 </body>
 
 </html>
