@@ -31,3 +31,14 @@ function validateRegistration(string $username, string $email, string $password,
 
     return $errors;
 }
+
+function existedEmail(?object $emailObj): array
+{
+    $errors = [];
+
+    if ($emailObj !== false && ! empty($emailObj)) {
+        $errors["email"] = "this email is used";
+    }
+
+    return $errors;
+}
