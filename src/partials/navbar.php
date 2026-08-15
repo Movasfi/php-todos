@@ -20,8 +20,8 @@
         <div class="hidden  w-full sm:flex sm:justify-center sm:items-center">
             <nav>
                 <ul class="list-none flex space-x-3">
-                    <li class="cursor-pointer hover:underline hover:underline-offset-2">Tasks</li>
-                    <li class="cursor-pointer hover:underline hover:underline-offset-2">Overview</li>
+                    <li class="cursor-pointer hover:underline hover:underline-offset-2"><a href="../views/index.php">Tasks</a></li>
+                    <li class="cursor-pointer hover:underline hover:underline-offset-2"><a href="../views/overviewTodos.php">Overview</a></li>
                 </ul>
             </nav>
 

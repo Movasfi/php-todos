@@ -1,8 +1,6 @@
-const menuContainer = document.getElementById("menu-container");
-
 const openMenu = () => {
+  const menuContainer = document.getElementById("menu-container");
   const menu = document.querySelector(".menu");
-  console.log(menu);
   menu.addEventListener("click", () => {
     const navbarList = document.querySelector(".navbar-list");
     // navbarList.classList.toggle("hidden");
@@ -20,4 +18,42 @@ const openMenu = () => {
   });
 };
 
+const renderSuccessMessage = () => {
+  const successMessage = document.getElementById("successMessage");
+  if (successMessage?.dataset?.message) {
+    Toastify({
+      text: successMessage.dataset.message,
+      duration: 3000,
+      gravity: "top",
+      position: "center",
+      stopOnFocus: true,
+      style: {
+        background: "#10b981",
+        borderRadius: "8px",
+        fontSize: "14px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+      },
+    }).showToast();
+  }
+};
+const renderDbError = () => {
+  const dbError = document.getElementById("dbError");
+  if (dbError?.dataset?.message) {
+    Toastify({
+      text: dbError.dataset.message,
+      duration: 3000,
+      gravity: "top",
+      position: "center",
+      stopOnFocus: true,
+      style: {
+        background: "#FF0000",
+        borderRadius: "8px",
+        fontSize: "14px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+      },
+    }).showToast();
+  }
+};
 openMenu();
+renderSuccessMessage();
+renderDbError();

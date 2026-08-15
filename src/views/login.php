@@ -1,4 +1,5 @@
 <?php
+    session_start();
     require_once "../db.inc.php";
     require_once "../helpers/loginValidation.php";
     $formFields = [
@@ -47,6 +48,7 @@
         if (! empty($existedEmailDb)) {
             $encodePasswordHash = password_verify($password, $existedEmailDb->password);
             if ($encodePasswordHash) {
+                $_SESSION["userId"] = $existedEmailDb->id;
                 header("Location: index.php");
                 exit();
             } else {
