@@ -23,7 +23,7 @@ const renderSuccessMessage = () => {
   if (successMessage?.dataset?.message) {
     Toastify({
       text: successMessage.dataset.message,
-      duration: 3000,
+      duration: 2000,
       gravity: "top",
       position: "center",
       stopOnFocus: true,

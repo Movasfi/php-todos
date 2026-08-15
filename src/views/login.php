@@ -2,6 +2,7 @@
     session_start();
     require_once "../db.inc.php";
     require_once "../helpers/loginValidation.php";
+    
     $formFields = [
     [
         'label'       => 'Email Address',

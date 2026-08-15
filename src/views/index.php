@@ -3,6 +3,7 @@
     session_start();
     include '../db.inc.php';
     require_once '../helpers/todosValidation.php';
+    include_once "../middleware/auth.php";
     $userId = $_SESSION["userId"];
 
     $formFields = [
@@ -134,6 +135,8 @@
 </head>
 
 <body>
+    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col min-h-screen">
+
     <?php require_once "../partials/navbar.php"?>
     <main class="pt-10">
         <section>
@@ -256,7 +259,9 @@
             </div>
         </section>
     </main>
+    <?php require_once "../partials/footer.php"?>
 
+</div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="../js/index.js" defer></script>
