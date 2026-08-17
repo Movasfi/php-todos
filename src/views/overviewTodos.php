@@ -11,9 +11,67 @@
     $getData->bindParam(":id", $userId, PDO::PARAM_STR);
     $getData->execute();
     $userData = $getData->fetchAll(PDO::FETCH_ASSOC);
-
     } catch (PDOException $e) {
     echo $e;
+    }
+
+    try {
+    $getTodosquery = "
+    SELECT * FROM todos
+    WHERE user_id = :id
+    ORDER BY created_at DESC
+";
+    $getQuery = $stmtRecent = $conn->prepare($getTodosquery);
+    $getQuery->bindParam(":id", $userId);
+    $getQuery->execute();
+    $allTasks = $getQuery->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+    echo $e;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $todoId = $_POST['task_id'] ?? null;
+    $action = $_POST['action'];
+
+    if ($action === 'update_status' && isset($_POST['status'])) {
+        $status = $_POST['status'];
+
+        try {
+            $updateStatusQuery = "
+                UPDATE todos
+                SET status = :status
+                WHERE id = :id AND user_id = :user_id
+            ";
+            $updateQuery = $conn->prepare($updateStatusQuery);
+            $updateQuery->bindParam(":status", $status);
+            $updateQuery->bindParam(":id", $todoId);
+            $updateQuery->bindParam(":user_id", $userId);
+            $updateQuery->execute();
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    if ($action === 'delete_task') {
+        try {
+            $deleteTodoQuery = "
+                DELETE FROM todos
+                WHERE id = :id AND user_id = :user_id
+            ";
+            $deleteQuery = $conn->prepare($deleteTodoQuery);
+            $deleteQuery->bindParam(":id", $todoId);
+            $deleteQuery->bindParam(":user_id", $userId);
+            $deleteQuery->execute();
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
     }
 
     $totalTasks = count($userData);
@@ -24,7 +82,6 @@
         if ($key["status"] === "$cate") {
             $amount++;
         }
-
     }
     return $amount;
     }
@@ -169,12 +226,94 @@
                     </div>
                 </div>
             </div>
+            <section>
+                <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
 
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50/80 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                                <tr>
+                                    <th class="px-6 py-3 font-semibold">Task</th>
+                                    <th class="px-6 py-3 font-semibold">Status</th>
+                                    <th class="px-6 py-3 font-semibold">Created At</th>
+                                    <th class="px-6 py-3 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <?php if (! empty($allTasks)): ?>
+                                    <?php foreach ($allTasks as $task): ?>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-6 py-4">
+                                                <div class="font-medium text-slate-900"><?php echo htmlspecialchars($task['title']) ?></div>
+                                                <?php if (! empty($task['description'])): ?>
+                                                    <div class="text-xs text-slate-400 mt-0.5"><?php echo htmlspecialchars($task['description']) ?></div>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <?php if ($task['status'] === 'completed'): ?>
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                                        Completed
+                                                    </span>
+                                                <?php elseif ($task['status'] === 'in_progress'): ?>
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/60">
+                                                        In Progress
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                                        Pending
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-400">
+                                                <?php echo date('M d, Y H:i', strtotime($task['created_at'])) ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                                <div class="flex items-center justify-end gap-2">
+
+                                                    <form action="" method="POST" class="inline-block">
+                                                        <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
+                                                        <input type="hidden" name="action" value="update_status">
+                                                        <select name="status" onchange="this.form.submit()" class="text-xs bg-slate-50 border border-slate-200 text-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-slate-300 cursor-pointer">
+                                                            <option value="pending" <?php echo $task['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                                            <option value="in_progress" <?php echo $task['status'] === 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
+                                                            <option value="completed" <?php echo $task['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                                        </select>
+                                                    </form>
+
+                                                    <form action="" method="POST" class="inline-block">
+                                                        <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
+                                                        <input type="hidden" name="action" value="delete_task">
+                                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Task">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-8 text-center text-sm text-slate-400">
+                                            No tasks found yet. Start by adding one!
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <?php require_once "../partials/footer.php"?>
 
     </div>
+</div>
+
+    <script src="../js/index.js"></script>
 </body>
 
 </html>

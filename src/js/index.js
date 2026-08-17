@@ -1,9 +1,10 @@
+
+
 const openMenu = () => {
   const menuContainer = document.getElementById("menu-container");
   const menu = document.querySelector(".menu");
   menu.addEventListener("click", () => {
     const navbarList = document.querySelector(".navbar-list");
-    // navbarList.classList.toggle("hidden");
 
     navbarList.classList.toggle("max-h-0");
     navbarList.classList.toggle("max-h-64");

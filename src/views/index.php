@@ -259,8 +259,8 @@
             </div>
         </section>
     </main>
+    
     <?php require_once "../partials/footer.php"?>
-
 </div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
